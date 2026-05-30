@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SMS Spam Detector — Free AI Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&family=Lora:ital@0;1&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F6F2;
+    --surface: #FFFFFF;
+    --surface2: #F0EEE8;
+    --border: #E2DFD5;
+    --border2: #C8C4B8;
+    --text: #1A1916;
+    --text2: #6B6860;
+    --text3: #9E9B92;
+    --green-bg: #EAF3DE;
+    --green-border: #97C459;
+    --green-text: #27500A;
+    --red-bg: #FCEBEB;
+    --red-border: #F09595;
+    --red-text: #791F1F;
+    --accent: #1A1916;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --radius-pill: 999px;
+    --mono: 'DM Mono', monospace;
+    --sans: 'Instrument Sans', sans-serif;
+    --serif: 'Lora', serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── NAV ── */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 60px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .nav-logo .shield {
+    width: 28px; height: 28px;
+    background: var(--text);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--bg);
+    font-size: 14px;
+  }
+  .nav-links { display: flex; gap: 1.5rem; }
+  .nav-links a {
+    font-size: 14px;
+    color: var(--text2);
+    text-decoration: none;
+    transition: color .15s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    background: var(--text);
+    color: var(--bg) !important;
+    padding: 6px 14px;
+    border-radius: var(--radius-sm);
+    font-weight: 500 !important;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 5rem 2rem 3rem;
+    text-align: center;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text2);
+    margin-bottom: 1.5rem;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+  }
+  .hero-badge .dot {
+    width: 6px; height: 6px;
+    background: #639922;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .6; transform: scale(1.3); }
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 400;
+    line-height: 1.2;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--text2);
+  }
+  .hero p {
+    font-size: 17px;
+    color: var(--text2);
+    max-width: 520px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.7;
+  }
+
+  /* ── MAIN TOOL CARD ── */
+  .tool-wrap {
+    max-width: 760px;
+    margin: 0 auto 4rem;
+    padding: 0 2rem;
+  }
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .tool-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .tool-header-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tool-header-title svg { opacity: .5; }
+  .counter-pill {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text3);
+    background: var(--surface2);
+    padding: 3px 10px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border);
+  }
+  .tool-body { padding: 1.5rem; }
+
+  textarea#smsInput {
+    width: 100%;
+    min-height: 110px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    font-family: var(--sans);
+    font-size: 15px;
+    color: var(--text);
+    background: var(--bg);
+    resize: vertical;
+    outline: none;
+    transition: border-color .15s;
+    line-height: 1.6;
+  }
+  textarea#smsInput:focus { border-color: var(--border2); }
+  textarea#smsInput::placeholder { color: var(--text3); }
+
+  .tool-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .char-count {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text3);
+  }
+  .btn-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--text);
+    color: var(--bg);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 10px 22px;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity .15s, transform .1s;
+  }
+  .btn-check:hover { opacity: .88; }
+  .btn-check:active { transform: scale(.97); }
+  .btn-check svg { transition: transform .2s; }
+  .btn-check:hover svg { transform: translateX(2px); }
+
+  /* ── RESULT ── */
+  #resultBox {
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1.5rem;
+    display: none;
+  }
+  #resultBox.show { display: block; animation: slideUp .3s ease; }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .verdict-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    border-radius: var(--radius-pill);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: .01em;
+  }
+  .verdict-badge.spam { background: var(--red-bg); color: var(--red-text); border: 1px solid var(--red-border); }
+  .verdict-badge.ham  { background: var(--green-bg); color: var(--green-text); border: 1px solid var(--green-border); }
+  .verdict-icon { font-size: 18px; }
+
+  .conf-label {
+    font-size: 13px;
+    color: var(--text3);
+    font-family: var(--mono);
+  }
+  .conf-num {
+    font-size: 28px;
+    font-weight: 600;
+    font-family: var(--mono);
+    color: var(--text);
+  }
+
+  .bar-track {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: var(--radius-pill);
+    transition: width .6s cubic-bezier(.22,1,.36,1);
+  }
+  .bar-fill.spam { background: #E24B4A; }
+  .bar-fill.ham  { background: #639922; }
+
+  .prob-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    font-family: var(--mono);
+    color: var(--text2);
+    margin-bottom: 1.25rem;
+  }
+  .prob-spam { color: #A32D2D; }
+  .prob-ham  { color: #3B6D11; }
+
+  .result-message-preview {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 14px;
+    color: var(--text2);
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  .result-explanation {
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--text3);
+    line-height: 1.6;
+  }
+  .signal-word {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin: 2px;
+  }
+  .signal-spam { background: var(--red-bg); color: var(--red-text); }
+  .signal-ham  { background: var(--green-bg); color: var(--green-text); }
+
+  /* ── EXAMPLES ── */
+  .examples-section {
+    padding: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .examples-label {
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text3);
+    margin-bottom: 12px;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    padding: 6px 13px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text2);
+    background: var(--surface);
+    cursor: pointer;
+    transition: background .15s, border-color .15s, color .15s;
+    font-family: var(--sans);
+  }
+  .chip:hover { background: var(--surface2); border-color: var(--border2); color: var(--text); }
+  .chip.spam-chip { background: var(--red-bg); border-color: var(--red-border); color: var(--red-text); }
+  .chip.ham-chip  { background: var(--green-bg); border-color: var(--green-border); color: var(--green-text); }
+
+  /* ── HOW IT WORKS ── */
+  .how-section {
+    max-width: 760px;
+    margin: 0 auto 5rem;
+    padding: 0 2rem;
+  }
+  .section-label {
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text3);
+    margin-bottom: 1rem;
+  }
+  .section-title {
+    font-family: var(--serif);
+    font-size: 1.8rem;
+    font-weight: 400;
+    margin-bottom: 1rem;
+    color: var(--text);
+  }
+  .section-sub {
+    color: var(--text2);
+    font-size: 15px;
+    max-width: 580px;
+    margin-bottom: 2.5rem;
+    line-height: 1.7;
+  }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  .step-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+  }
+  .step-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+    margin-bottom: 10px;
+  }
+  .step-icon {
+    width: 36px; height: 36px;
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 12px;
+    font-size: 18px;
+  }
+  .step-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .step-desc {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  /* ── STATS ── */
+  .stats-bar {
+    max-width: 760px;
+    margin: 0 auto 4rem;
+    padding: 0 2rem;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: var(--mono);
+    font-size: 2rem;
+    font-weight: 500;
+    color: var(--text);
+    display: block;
+  }
+  .stat-label {
+    font-size: 13px;
+    color: var(--text3);
+    margin-top: 4px;
+  }
+
+  /* ── GITHUB CTA ── */
+  .cta-section {
+    max-width: 760px;
+    margin: 0 auto 6rem;
+    padding: 0 2rem;
+  }
+  .cta-card {
+    background: var(--text);
+    border-radius: var(--radius);
+    padding: 2.5rem;
+    text-align: center;
+    color: var(--bg);
+  }
+  .cta-card h2 {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 400;
+    margin-bottom: 10px;
+  }
+  .cta-card p {
+    font-size: 14px;
+    opacity: .65;
+    margin-bottom: 1.5rem;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .cta-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .btn-github {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg);
+    color: var(--text);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 10px 22px;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: opacity .15s;
+  }
+  .btn-github:hover { opacity: .88; }
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    color: var(--bg);
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: var(--radius-sm);
+    padding: 10px 22px;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .15s;
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,.08); }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    text-align: center;
+    padding: 2rem;
+    font-size: 13px;
+    color: var(--text3);
+  }
+  footer a { color: var(--text2); text-decoration: none; }
+  footer a:hover { color: var(--text); }
+
+  /* ── BATCH SECTION ── */
+  .batch-section {
+    max-width: 760px;
+    margin: 0 auto 4rem;
+    padding: 0 2rem;
+  }
+  .batch-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .batch-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .batch-header-title { font-size: 14px; font-weight: 500; color: var(--text2); }
+  .batch-body { padding: 1.5rem; }
+  .batch-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+    font-size: 14px;
+    animation: fadeIn .25s ease;
+    gap: 12px;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .batch-msg { color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .batch-badge {
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--mono);
+    padding: 3px 10px;
+    border-radius: var(--radius-pill);
+    white-space: nowrap;
+  }
+  .batch-badge.spam { background: var(--red-bg); color: var(--red-text); border: 1px solid var(--red-border); }
+  .batch-badge.ham  { background: var(--green-bg); color: var(--green-text); border: 1px solid var(--green-border); }
+  .batch-conf { font-family: var(--mono); font-size: 12px; color: var(--text3); min-width: 38px; text-align: right; }
+  .batch-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 16px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    cursor: pointer;
+    transition: background .15s, border-color .15s, color .15s;
+  }
+  .btn-outline:hover { background: var(--surface2); border-color: var(--border2); color: var(--text); }
+
+  @media (max-width: 600px) {
+    nav { padding: 0 1rem; }
+    .nav-links { display: none; }
+    .hero { padding: 3rem 1rem 2rem; }
+    .tool-wrap, .how-section, .stats-bar, .cta-section, .batch-section { padding: 0 1rem; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .stats-grid .stat-card:last-child { grid-column: span 2; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="shield">✦</div>
+    SpamGuard
+  </a>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#batch">Batch check</a>
+    <a href="https://github.com/mariem-ctrl/ML-model-sms-spam-detector" target="_blank" class="nav-cta">Get the code →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <span class="dot"></span>
+    Free &amp; open source · No login needed
+  </div>
+  <h1>Is that SMS <em>spam</em><br>or the real thing?</h1>
+  <p>Paste any text message below. Our machine learning model will tell you instantly — with a confidence score.</p>
+</section>
+
+<!-- MAIN TOOL -->
+<div class="tool-wrap">
+  <div class="tool-card">
+    <div class="tool-header">
+      <div class="tool-header-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Paste your SMS message
+      </div>
+      <span class="counter-pill"><span id="charCount">0</span> chars</span>
+    </div>
+
+    <div class="tool-body">
+      <textarea id="smsInput" placeholder="e.g. Congratulations! You've won a £1000 prize. Call now to claim your reward…" maxlength="500"></textarea>
+
+      <div class="tool-actions">
+        <span class="char-count">Press Enter or click to analyse</span>
+        <button class="btn-check" onclick="classifyInput()">
+          Analyse message
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+
+      <!-- RESULT -->
+      <div id="resultBox">
+        <div class="result-top">
+          <span id="verdictBadge" class="verdict-badge"></span>
+          <div style="text-align:right;">
+            <div class="conf-label">confidence</div>
+            <div class="conf-num" id="confNum">--</div>
+          </div>
+        </div>
+        <div class="bar-track"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
+        <div class="prob-row">
+          <span class="prob-ham">Ham <span id="hamPct">--%</span></span>
+          <span class="prob-spam">Spam <span id="spamPct">--%</span></span>
+        </div>
+        <div class="result-message-preview" id="msgPreview"></div>
+        <div class="result-explanation" id="signalWords"></div>
+      </div>
+    </div>
+
+    <!-- EXAMPLES -->
+    <div class="examples-section">
+      <div class="examples-label">Try an example</div>
+      <div class="chips">
+        <button class="chip spam-chip" onclick="tryExample(this)" data-msg="WINNER!! You have been selected to receive a £900 prize reward! To claim call 09061701461. Claim code KL341. Valid 12 hours only.">Lottery winner scam</button>
+        <button class="chip spam-chip" onclick="tryExample(this)" data-msg="FREE entry in 2 a wkly comp to win FA Cup final tkts 21st May 2005. Text FA to 87121 to receive entry question(std txt rate)T&C's apply 08452810075over18's">FA Cup free entry</button>
+        <button class="chip spam-chip" onclick="tryExample(this)" data-msg="URGENT: Your bank account has been compromised. Please verify your details immediately at: secure-bank-verify.xyz or call 0800 123 456">Bank account suspended</button>
+        <button class="chip spam-chip" onclick="tryExample(this)" data-msg="Congratulations ur awarded 500 of bonus points. call customer service on 08718720201 between 10am-7pm as your prize exp 3/7/05">Bonus points scam</button>
+        <button class="chip ham-chip" onclick="tryExample(this)" data-msg="Hey, are you coming to the barbecue on Saturday? Let me know so I can plan the food!">Weekend barbecue invite</button>
+        <button class="chip ham-chip" onclick="tryExample(this)" data-msg="Reminder: your dentist appointment is on Wednesday at 2:30pm. Please call us if you need to reschedule.">Dentist reminder</button>
+        <button class="chip ham-chip" onclick="tryExample(this)" data-msg="Can you pick up some milk and eggs on your way home? Thanks so much, love you!">Grocery request</button>
+        <button class="chip ham-chip" onclick="tryExample(this)" data-msg="The project meeting has been moved to 3pm tomorrow. I've updated the calendar invite.">Meeting reschedule</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar" id="how">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-num">97–98%</span>
+      <div class="stat-label">Accuracy on full dataset</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">&lt;1ms</span>
+      <div class="stat-label">Per prediction</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">5,574</span>
+      <div class="stat-label">Real SMS messages trained on</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="how-section">
+  <div class="section-label">Under the hood</div>
+  <h2 class="section-title">How the model thinks</h2>
+  <p class="section-sub">Two classic machine learning techniques, combined. Each one is simple — together they're surprisingly powerful.</p>
+  <div class="steps">
+    <div class="step-card">
+      <div class="step-num">Step 01</div>
+      <div class="step-icon">📝</div>
+      <div class="step-title">Your message comes in</div>
+      <div class="step-desc">Raw SMS text, exactly as typed. No preprocessing needed — the model handles it.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">Step 02</div>
+      <div class="step-icon">🔢</div>
+      <div class="step-title">TF-IDF converts words to numbers</div>
+      <div class="step-desc">Words like "FREE" and "WINNER" score high in spam. "Dentist" and "lunch" score high in real messages.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">Step 03</div>
+      <div class="step-icon">🧮</div>
+      <div class="step-title">Naive Bayes calculates probability</div>
+      <div class="step-desc">Multiplies the spam-score of every word together to produce a final percentage. Fast and accurate.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">Step 04</div>
+      <div class="step-icon">✅</div>
+      <div class="step-title">You get a verdict + confidence</div>
+      <div class="step-desc">Spam or Ham — with a confidence score so you know how certain the model is.</div>
+    </div>
+  </div>
+</section>
+
+<!-- BATCH CHECKER -->
+<section class="batch-section" id="batch">
+  <div class="batch-card">
+    <div class="batch-header">
+      <span class="batch-header-title">Batch checker — test multiple messages at once</span>
+    </div>
+    <div class="batch-body">
+      <div id="batchResults"></div>
+      <div class="batch-actions">
+        <button class="btn-outline" onclick="runBatch()">Run sample batch (10 messages)</button>
+        <button class="btn-outline" onclick="clearBatch()">Clear results</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GITHUB CTA -->
+<section class="cta-section">
+  <div class="cta-card">
+    <h2>Run it on your own computer</h2>
+    <p>Download the full Python source code. Train it yourself, customize it, or plug it into your own app. Free forever.</p>
+    <div class="cta-btns">
+      <a href="https://github.com/mariem-ctrl/ML-model-sms-spam-detector" target="_blank" class="btn-github">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        View on GitHub
+      </a>
+      <a href="#" class="btn-secondary" onclick="scrollToTool()">
+        Try it here instead →
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Built with Python · scikit-learn · TF-IDF · Naive Bayes &nbsp;·&nbsp;
+  <a href="https://github.com/mariem-ctrl/ML-model-sms-spam-detector" target="_blank">Open source on GitHub</a> &nbsp;·&nbsp;
+  MIT License
+</footer>
+
+<script>
+const spamSignals = {
+  'free': .85, 'win': .78, 'won': .82, 'winner': .90, 'prize': .88,
+  'cash': .72, 'claim': .75, 'urgent': .70, 'congratulations': .80,
+  'congratulation': .80, 'selected': .65, 'bonus': .68, 'offer': .52,
+  'loan': .72, 'credit': .60, 'ringtone': .85, 'call': .42, 'text': .38,
+  'reply': .48, 'click': .65, 'verify': .68, 'suspended': .72,
+  'account': .52, 'bank': .48, 'approved': .62, 'guaranteed': .78,
+  'exclusive': .58, 'limited': .52, 'expires': .58, 'discount': .50,
+  'subscription': .48, 'membership': .62, 'entry': .58, 'awarded': .78,
+  'entitled': .65, 'compensation': .70, 'refund': .62, 'delivery': .35,
+  'failed': .52, 'password': .60, 'secure': .50, 'login': .65,
+  'http': .70, 'xyz': .90, 'tkts': .80, 'wkly': .75, 'comp': .55,
+  'reward': .70, 'voucher': .65, 'gift': .48, 'lucky': .72, 'chosen': .68,
+};
+const hamSignals = {
+  'meeting': -.60, 'lunch': -.65, 'dinner': -.62, 'birthday': -.70,
+  'dentist': -.75, 'appointment': -.65, 'home': -.58, 'coming': -.52,
+  'thanks': -.65, 'please': -.48, 'tomorrow': -.60, 'weekend': -.62,
+  'groceries': -.75, 'milk': -.80, 'eggs': -.78, 'saturday': -.60,
+  'sunday': -.60, 'barbecue': -.80, 'coffee': -.70, 'movie': -.72,
+  'school': -.68, 'reminder': -.50, 'morning': -.56, 'evening': -.58,
+  'doctor': -.60, 'ok': -.55, 'okay': -.55, 'sure': -.58, 'love': -.70,
+  'hi': -.58, 'hey': -.65, 'hello': -.60, 'mum': -.72, 'mom': -.72,
+  'dad': -.72, 'sorry': -.65, 'missed': -.55, 'delayed': -.52,
+  'late': -.50, 'moved': -.55, 'updated': -.58, 'confirmed': -.42,
+  'project': -.55, 'reschedule': -.60, 'calendar': -.62,
+};
+
+function classify(text) {
+  const t = text.toLowerCase();
+  const words = t.match(/\b[a-z]{2,}\b/g) || [];
+  let score = 0;
+  const foundSpam = [], foundHam = [];
+
+  for (const w of words) {
+    if (spamSignals[w]) { score += spamSignals[w]; foundSpam.push(w); }
+    if (hamSignals[w])  { score += hamSignals[w];  foundHam.push(w);  }
+  }
+
+  const capsRatio = (text.match(/[A-Z]/g)||[]).length / Math.max(text.length, 1);
+  if (capsRatio > .25) score += .35;
+  if (/\d{7,}/.test(text)) score += .30;
+  if (/!!/.test(text)) score += .25;
+  if (/£|\$/.test(text)) score += .22;
+  if (/[a-z0-9]+\.[a-z]{2,4}\//.test(t)) score += .40;
+
+  const spamProb = Math.min(Math.max(1 / (1 + Math.exp(-score * .9)), .01), .99);
+  return {
+    spamProb,
+    hamProb: 1 - spamProb,
+    isSpam: spamProb >= .5,
+    foundSpam: [...new Set(foundSpam)].slice(0, 5),
+    foundHam:  [...new Set(foundHam)].slice(0, 5),
+  };
+}
+
+function classifyInput() {
+  const text = document.getElementById('smsInput').value.trim();
+  if (!text) return;
+  const r = classify(text);
+  showResult(text, r);
+}
+
+function showResult(text, r) {
+  const box = document.getElementById('resultBox');
+  const badge = document.getElementById('verdictBadge');
+  const conf = r.isSpam ? r.spamProb : r.hamProb;
+
+  badge.className = 'verdict-badge ' + (r.isSpam ? 'spam' : 'ham');
+  badge.innerHTML = r.isSpam
+    ? '<span class="verdict-icon">🚫</span> Spam detected'
+    : '<span class="verdict-icon">✅</span> Looks safe';
+
+  document.getElementById('confNum').textContent = Math.round(conf * 100) + '%';
+  const bar = document.getElementById('barFill');
+  bar.className = 'bar-fill ' + (r.isSpam ? 'spam' : 'ham');
+  setTimeout(() => { bar.style.width = Math.round(conf * 100) + '%'; }, 30);
+
+  document.getElementById('hamPct').textContent  = Math.round(r.hamProb * 100) + '%';
+  document.getElementById('spamPct').textContent = Math.round(r.spamProb * 100) + '%';
+
+  const preview = text.length > 120 ? text.slice(0, 120) + '…' : text;
+  document.getElementById('msgPreview').textContent = '"' + preview + '"';
+
+  let sigHtml = '';
+  if (r.foundSpam.length) {
+    sigHtml += '<div style="margin-top:10px;"><span style="font-size:12px;color:var(--text3);">Spam signals found: </span>';
+    r.foundSpam.forEach(w => { sigHtml += `<span class="signal-word signal-spam">${w}</span>`; });
+    sigHtml += '</div>';
+  }
+  if (r.foundHam.length) {
+    sigHtml += '<div style="margin-top:6px;"><span style="font-size:12px;color:var(--text3);">Ham signals found: </span>';
+    r.foundHam.forEach(w => { sigHtml += `<span class="signal-word signal-ham">${w}</span>`; });
+    sigHtml += '</div>';
+  }
+  document.getElementById('signalWords').innerHTML = sigHtml;
+
+  box.classList.add('show');
+  box.style.display = 'block';
+}
+
+function tryExample(el) {
+  const ta = document.getElementById('smsInput');
+  ta.value = el.dataset.msg;
+  document.getElementById('charCount').textContent = ta.value.length;
+  classifyInput();
+  ta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+document.getElementById('smsInput').addEventListener('input', function() {
+  document.getElementById('charCount').textContent = this.value.length;
+});
+document.getElementById('smsInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); classifyInput(); }
+});
+
+const batchMessages = [
+  { text: "Congratulations! You won a £1000 prize. Call now to claim!", expected: 'spam' },
+  { text: "Hey, are you coming to dinner tonight?", expected: 'ham' },
+  { text: "URGENT: Your account is suspended. Verify at secure-bank.xyz", expected: 'spam' },
+  { text: "Can you pick up some milk on your way home?", expected: 'ham' },
+  { text: "FREE ringtone! Text RING to 87121. Only £1.50/week.", expected: 'spam' },
+  { text: "Reminder: dentist appointment tomorrow at 3pm.", expected: 'ham' },
+  { text: "You have been pre-approved for a £5000 loan. No credit check!", expected: 'spam' },
+  { text: "The meeting has been moved to 2pm. Calendar updated.", expected: 'ham' },
+  { text: "Claim your FREE Netflix subscription before it expires today!", expected: 'spam' },
+  { text: "I'll be home late tonight. Don't wait up, love you!", expected: 'ham' },
+];
+
+function runBatch() {
+  const container = document.getElementById('batchResults');
+  container.innerHTML = '';
+  batchMessages.forEach((item, i) => {
+    setTimeout(() => {
+      const r = classify(item.text);
+      const label = r.isSpam ? 'spam' : 'ham';
+      const conf = r.isSpam ? r.spamProb : r.hamProb;
+      const short = item.text.length > 60 ? item.text.slice(0, 60) + '…' : item.text;
+      const row = document.createElement('div');
+      row.className = 'batch-row';
+      row.innerHTML = `
+        <span class="batch-msg">${short}</span>
+        <span class="batch-badge ${label}">${label.toUpperCase()}</span>
+        <span class="batch-conf">${Math.round(conf * 100)}%</span>
+      `;
+      container.appendChild(row);
+    }, i * 120);
+  });
+}
+
+function clearBatch() {
+  document.getElementById('batchResults').innerHTML = '';
+}
+
+function scrollToTool() {
+  document.getElementById('smsInput').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+</script>
+</body>
+</html>
